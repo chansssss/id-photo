@@ -1,0 +1,1 @@
+scp -r src .\package.json my-ubuntu:/home/ubuntu/workspace/api-server

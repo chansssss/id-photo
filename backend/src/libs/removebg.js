@@ -20,7 +20,6 @@ async function initConfig() {
     }
     keysConfig = keys
     config.set('kaleido.keys', keysConfig)
-    console.log(keysConfig);
 }
 
 /**
@@ -32,13 +31,13 @@ async function initConfig() {
 async function imgRemoveBg(inputPath) {
     return new Promise(async (resolve, reject) => {
         let apiKey = getApiKey()
+        console.log(apiKey);
         if (!apiKey) {
             reject({
                 code: 10001,
                 msg: '接口调用次数已达到上限',
             })
         }
-        console.log(apiKey);
         const formData = new FormData();
         formData.append('size', 'auto');
         formData.append('image_file', fs.createReadStream(inputPath), path.basename(inputPath));
@@ -66,6 +65,7 @@ async function imgRemoveBg(inputPath) {
         resolve(response.data)
     })
 }
+
 /**
  * 获取可以使用的key
  *
@@ -117,7 +117,6 @@ async function getFreeCalls(apiKey) {
         encoding: null
     })
     if (response.data) {
-        console.log(response.data.data.attributes.api.free_calls);
         return response.data.data.attributes.api.free_calls
     }
     return 0

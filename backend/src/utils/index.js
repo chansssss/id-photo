@@ -1,9 +1,10 @@
 import path from 'path'
 import fs from 'fs';
+import md5 from 'blueimp-md5'
 const __dirname = path.resolve()
 
 function uploadFileMiddleware(req) {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
         let sampleFile;
         let uploadPath;
         if (!req.files || Object.keys(req.files).length === 0) {
@@ -32,10 +33,38 @@ function uploadFileMiddleware(req) {
 
 function removeTempDir(path) {
     if (path) {
-        fs.rmdirSync(path, { recursive: true });
+        fs.rmSync(path, { recursive: true });
     }
 }
 
+const cachePath = path.join(__dirname, 'caches')
+/**
+ * 保存文件到磁盘
+ *
+ * @param {*} binary
+ */
+function savePicToDisk(md5, binary) {
+    let buff = Buffer.from(binary);
+    fs.writeFile(path.join(cachePath, `${md5}.png`), buff, "buffer", async function (err) {
+    });
+}
+
+/**
+ * 根据文件md5获取文件
+ *
+ * @param {*} md5
+ */
+function getPicByMd5(md5) {
+    return new Promise((resolve, reject) => {
+        let filePath = path.join(cachePath, `${md5}.png`)
+        fs.readFile(filePath, function (err, data) {
+            if (err) resolve(false);
+            resolve(data)
+        })
+    })
+}
+
+
 export {
-    uploadFileMiddleware, removeTempDir
+    uploadFileMiddleware, removeTempDir, savePicToDisk, getPicByMd5
 }
