@@ -10,28 +10,17 @@
       @getCutPic="getCutPic"
     ></cut-pic>
     <div class="setting">
-      <div class="doc-block__title">图片最大大小（单位:KB）</div>
-      <van-slider
-        v-model="outputOption.size"
-        :max="1200"
-        :min="10"
-        active-color="#ee0a24"
-      >
-        <template #button>
-          <div class="custom-button">{{ outputOption.size }}</div>
-        </template>
-      </van-slider>
       <div class="doc-block__title">背景</div>
       <van-radio-group v-model="outputOption.background" direction="horizontal">
-        <van-radio name="1">红底</van-radio>
-        <van-radio name="2">蓝底</van-radio>
-        <van-radio name="3">白底</van-radio>
+        <van-radio :name="1">红底</van-radio>
+        <van-radio :name="2">蓝底</van-radio>
+        <van-radio :name="3">白底</van-radio>
       </van-radio-group>
     </div>
     <div class="bottom-wrap">
-      <van-button color="#7232dd" plain @click="openPreviewModel"
+      <!-- <van-button color="#7232dd" plain @click="openPreviewModel"
         >预览</van-button
-      >
+      > -->
       <van-button
         color="#7232dd"
         plain
@@ -67,7 +56,7 @@
         :style="{
           width: photoOptions.width + 'px',
           height: photoOptions.height + 'px',
-          background: photoOptions.background,
+          background: backgroundMapper[outputOption.background],
         }"
       >
         <img class="preview-img" :src="output" alt="" srcset="" />
@@ -107,6 +96,7 @@ export default {
         background: 1,
         size: 10,
       },
+      backgroundMapper:['','#FF0000','#438EDB','#FFFFFF'],
       picture: "",
       picFile: null,
       output: null,
@@ -155,7 +145,7 @@ export default {
       let ctx = canvas.getContext("2d");
       canvas.width = this.photoOptions.width;
       canvas.height = this.photoOptions.height;
-      ctx.fillStyle = this.photoOptions.background;
+      ctx.fillStyle = this.backgroundMapper[this.outputOption.background];
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       let img = new Image();
       img.crossOrigin = "anonymous";

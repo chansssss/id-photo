@@ -64,7 +64,7 @@ function blobToFile(theBlob, fileName, fileType) {
  * @param {*} quality
  * @return {*} 
  */
-async function picCompressor(file, quality = 0.6) {
+async function picCompressor(file, quality = 0.7) {
     // const options = {
     //     maxSizeMB: maxSize,
     //     maxWidthOrHeight: 1920,

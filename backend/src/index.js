@@ -28,11 +28,6 @@ app.post('/removebg', cors(), async function (req, res) {
     }
 });
 
-app.post('/credits', cors(), async function (req, res) {
-    res.send(JSON.stringify(getAccount()))
-});
-
-
 app.post('/compressor', cors(), async function (req, res) {
     let uploadPath = ''
     try {
@@ -53,7 +48,5 @@ app.post('/compressor', cors(), async function (req, res) {
 
 
 app.listen(3030, () => {
-    console.log(`Example app listening at http://localhost:${3030}`)
+    console.log(`App listening at http://localhost:${3030}`)
 })
-
-console.log('This message is displayed first.');

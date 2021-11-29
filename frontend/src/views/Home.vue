@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="bottom-wrap">
-      <van-button color="#7232dd" plain>声明</van-button>
+      <!-- <van-button color="#7232dd" plain>声明</van-button> -->
       <van-button
         color="#7232dd"
         plain
@@ -28,13 +28,13 @@
       >
         设置
       </van-button>
-      <van-button
+      <!-- <van-button
         class="margin-left-10"
         style="flex: 1;"
         color="linear-gradient(to right, #ff6034, #ee0a24)"
       >
         自定义
-      </van-button>
+      </van-button> -->
     </div>
   </div>
 </template>
