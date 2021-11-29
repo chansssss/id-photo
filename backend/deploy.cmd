@@ -1,1 +1,1 @@
-scp -r src .\package.json my-ubuntu:/home/ubuntu/workspace/api-server
+scp -r src .\package.json .\run.bash my-ubuntu:/home/ubuntu/workspace/api-server 
