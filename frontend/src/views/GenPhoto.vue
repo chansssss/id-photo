@@ -11,7 +11,12 @@
     ></cut-pic>
     <div class="setting">
       <div class="doc-block__title">图片最大大小（单位:KB）</div>
-      <van-slider v-model="outputOption.size" :max="1200" :min="10" active-color="#ee0a24">
+      <van-slider
+        v-model="outputOption.size"
+        :max="1200"
+        :min="10"
+        active-color="#ee0a24"
+      >
         <template #button>
           <div class="custom-button">{{ outputOption.size }}</div>
         </template>
@@ -44,7 +49,7 @@
       />
       <van-button
         class="margin-left-10"
-        style="flex: 1;"
+        style="flex: 1"
         color="linear-gradient(to right, #ff6034, #ee0a24)"
         @click="clipPic('confirm')"
       >
@@ -93,13 +98,12 @@
 </template>
 
 <script>
-import imageCompression from "browser-image-compression";
-// @ is an alias to /src
+const LIMIT1M = 1 * 1024 * 1024;
 export default {
   name: "Home",
   data() {
     return {
-      outputOption:{
+      outputOption: {
         background: 1,
         size: 10,
       },
@@ -158,12 +162,7 @@ export default {
       img.src = url;
       img.onload = async function () {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        let url = canvas.toDataURL({ pixelRatio: 1 });
-        let tempFile = that.$dataURLtoFile(url,'output.jpg')
-        console.log((that.outputOption.size/1024).toFixed(3));
-        that.resultFile = await that.picCompressor(tempFile,(that.outputOption.size/1024).toFixed(3));
-        that.resultUrl = await that.$file2Base64(that.resultFile)
-        console.log((that.resultFile.size/1024).toFixed(3));
+        that.resultUrl = canvas.toDataURL({ pixelRatio: 1 });
         that.loading = false;
         that.openResultModel();
       };
@@ -216,121 +215,37 @@ export default {
       this.loading = true;
       let dom = document.getElementById("fileSelect");
       if (dom.files[0]) {
-        let tempFile = await this.picCompressor(dom.files[0],1);
-        this.removeBg(tempFile);
+        if (dom.files[0] >= LIMIT1M) {
+          let tempFile = await this.$picCompressor(dom.files[0], 1);
+          this.removeBg(tempFile);
+        } else {
+          this.removeBg(dom.files[0]);
+        }
         dom.value = "";
       }
     },
-    blobToFile(theBlob, fileName, fileType) {
-      let files = new window.File([theBlob], fileName, { type: fileType });
-      return files;
-    },
-    async picCompressor(file,maxSize) {
-      const options = {
-        maxSizeMB: maxSize,
-        maxWidthOrHeight: 1920,
-        useWebWorker: true
-      };
-      try {
-        const compressedFile = await imageCompression(file, options);
-        let filec = this.blobToFile(compressedFile, `pic-${new Date().getTime()}.png`, compressedFile.type);
-        console.log(filec);
-        return filec
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    // 读文件转成base64
-    fileToBase64(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          resolve(e.target.result);
-        };
-        reader.readAsDataURL(file);
-      });
-    },
-    async removeBg1(file) {
-      if (!this.setting.apiKey) {
-        this.loading = false;
-        this.picFile = await this.fileToBase64(file);
-        return;
-      }
-      const formData = new FormData();
-      // eslint-disable-next-line no-unused-vars
-      let that = this;
-      formData.append("size", "auto");
-      formData.append("image_file", file, "test.jpg");
-      this.axios({
-        method: "post",
-        url: "https://api.remove.bg/v1.0/removebg",
-        data: formData,
-        responseType: "arraybuffer",
-        headers: {
-          "X-Api-Key": this.setting.apiKey,
-        },
-        encoding: null,
-      })
-        .then((response) => {
-          console.log(response);
-          if (response.status != 200) {
-            that.loading = false;
-            return console.error(
-              "Error:",
-              response.status,
-              response.statusText
-            );
-          }
-          const byteArray = new Uint8Array(response.data);
-          var reader = new FileReader();
-          reader.readAsDataURL(new Blob([byteArray]));
-          reader.onloadend = function () {
-            that.picFile = reader.result;
-            localStorage.setItem("LAST_URL", that.picFile);
-            that.loading = false;
-          };
-        })
-        .catch((error) => {
-          that.loading = false;
-          return console.error("Request failed:", error);
-        });
-    },
     async removeBg(file) {
-      const formData = new FormData();
-      // eslint-disable-next-line no-unused-vars
       let that = this;
+      const formData = new FormData();
       formData.append("file", file, "test.jpg");
-      this.axios({
+      let response = await this.axios({
         method: "post",
-        url: "http://localhost:3030/removebg",
+        url: "/removebg",
         data: formData,
         responseType: "arraybuffer",
         encoding: null,
-      })
-        .then((response) => {
-          console.log(response);
-          const byteArray = new Uint8Array(response.data);
-          var reader = new FileReader();
-          reader.readAsDataURL(new Blob([byteArray]));
-          reader.onloadend = function () {
-            that.picFile = reader.result;
-            localStorage.setItem("LAST_URL", that.picFile);
-            that.loading = false;
-          };
-        })
-        .catch((error) => {
-          that.loading = false;
-          return console.error("Request failed:", error);
-        });
-    },
-    arrayBufferToBase64(buffer) {
-      var binary = "";
-      var bytes = new Uint8Array(buffer);
-      var len = bytes.byteLength;
-      for (var i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      return window.btoa(binary);
+      }).catch((err) => {
+        console.log(err);
+        this.loading = false;
+      });
+      const byteArray = new Uint8Array(response.data);
+      var reader = new FileReader();
+      reader.readAsDataURL(new Blob([byteArray]));
+      reader.onloadend = function () {
+        that.picFile = reader.result;
+        localStorage.setItem("LAST_URL", that.picFile);
+        that.loading = false;
+      };
     },
   },
 };
@@ -352,10 +267,10 @@ export default {
   width: 100%;
   height: 100%;
 }
-.setting{
+.setting {
   padding: 10px 30px;
 }
-.doc-block__title{
+.doc-block__title {
   padding: 15px 0 !important;
 }
 .custom-button {
