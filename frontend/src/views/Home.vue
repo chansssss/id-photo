@@ -18,7 +18,7 @@
         </div>
       </div>
     </div>
-    <div class="bottom-wrap">
+    <div class="bottom-wrap" v-if="false">
       <!-- <van-button color="#7232dd" plain>声明</van-button> -->
       <van-button
         color="#7232dd"
